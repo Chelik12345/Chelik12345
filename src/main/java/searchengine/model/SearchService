@@ -1,0 +1,106 @@
+package com.example.service;
+
+import com.example.dto.SearchResult;
+import com.example.model.Index;
+import com.example.model.Lemma;
+import com.example.model.Page;
+import com.example.repository.IndexRepository;
+import com.example.repository.LemmaRepository;
+import com.example.repository.PageRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class SearchService {
+    private final LemmatizerService lemmatizerService;
+    private final LemmaRepository lemmaRepository;
+    private final IndexRepository indexRepository;
+    private final PageRepository pageRepository;
+
+    public SearchService(LemmatizerService lemmatizerService, LemmaRepository lemmaRepository, IndexRepository indexRepository, PageRepository pageRepository) {
+        this.lemmatizerService = lemmatizerService;
+        this.lemmaRepository = lemmaRepository;
+        this.indexRepository = indexRepository;
+        this.pageRepository = pageRepository;
+    }
+
+    public List<SearchResult> search(String query) {
+        Map<String, Integer> queryLemmas = lemmatizerService.lemmatize(query);
+        List<String> lemmas = queryLemmas.keySet().stream()
+            .sorted(Comparator.comparingInt(lemma -> lemmaRepository.findByLemma(lemma).getFrequency()))
+            .collect(Collectors.toList());
+
+        if (lemmas.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Set<Page> pages = new HashSet<>(indexRepository.findByLemma(lemmas.get(0)).stream()
+            .map(Index::getPage)
+            .collect(Collectors.toSet()));
+
+        for (int i = 1; i < lemmas.size(); i++) {
+            String lemma = lemmas.get(i);
+            Set<Page> lemmaPages = new HashSet<>(indexRepository.findByLemma(lemma).stream()
+                .map(Index::getPage)
+                .collect(Collectors.toSet()));
+            pages.retainAll(lemmaPages);
+
+            if (pages.isEmpty()) {
+                return Collections.emptyList();
+            }
+        }
+
+        List<SearchResult> results = new ArrayList<>();
+        double maxRelevance = 0;
+
+        for (Page page : pages) {
+            double relevance = 0;
+
+            for (String lemma : lemmas) {
+                List<Index> indices = indexRepository.findByPageAndLemma(page, lemma);
+                for (Index index : indices) {
+                    relevance += index.getRank();
+                }
+            }
+
+            if (relevance > maxRelevance) {
+                maxRelevance = relevance;
+            }
+
+            SearchResult result = new SearchResult();
+            result.setUri(page.getPath());
+            result.setTitle(page.getTitle());
+            result.setSnippet(createSnippet(page.getContent(), queryLemmas.keySet()));
+            result.setRelevance(relevance);
+
+            results.add(result);
+        }
+
+        for (SearchResult result : results) {
+            result.setRelevance(result.getRelevance() / maxRelevance);
+        }
+
+        results.sort(Comparator.comparingDouble(SearchResult::getRelevance).reversed());
+
+        return results;
+    }
+
+    private String createSnippet(String content, Set<String> lemmas) {
+        StringBuilder snippet = new StringBuilder();
+        String[] words = content.split("\\s+");
+        for (String word : words) {
+            if (lemmas.contains(word.toLowerCase())) {
+                snippet.append("<b>").append(word).append("</b>").append(" ");
+            } else {
+                snippet.append(word).append(" ");
+            }
+
+            if (snippet.length() > 150) {
+                break;
+            }
+        }
+        return snippet.toString().trim() + "...";
+    }
+}
