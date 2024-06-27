@@ -1,0 +1,22 @@
+package com.example.controller;
+
+import com.example.dto.SearchResult;
+import com.example.service.SearchService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
+public class SearchController {
+    private final SearchService searchService;
+
+    public SearchController(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
+    @GetMapping("/search")
+    public List<SearchResult> search(@RequestParam String query) {
+        return searchService.search(query);
+    }
+}
