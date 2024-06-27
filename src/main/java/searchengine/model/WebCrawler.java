@@ -1,65 +1,61 @@
 package searchengine.model;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
 
-public class WebCrawler {
-    private Set<String> visitedUrls;
+@Entity
+@Table(name = "site")
+public class Site {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public WebCrawler() {
-        visitedUrls = new HashSet<>();
-    }
+    @Column(nullable = false)
+    private String url;
 
-    public void crawl(String startUrl) {
-        crawlPage(startUrl);
-    }
+    @Column(nullable = false)
+    private String name;
 
-    private void crawlPage(String url) {
-        if (visitedUrls.contains(url)) {
-            return;
-        }
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('INDEXING', 'INDEXED', 'FAILED')")
+    private Status status;
 
-        visitedUrls.add(url);
-        System.out.println("Crawling: " + url);
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "status_time", nullable = false)
+    private Date statusTime;
 
-        try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setRequestMethod("GET");
+    @Column(name = "last_error")
+    private String lastError;
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line;
+    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Page> pages;
 
-            while ((line = reader.readLine()) != null) {
-                // Здесь вы можете обрабатывать контент страницы
-                // Например, индексировать текст или находить ссылки
-
-                // В этом примере просто выводим содержимое страницы
-                System.out.println(line);
-            }
-
-            reader.close();
-
-            // Здесь вы можете извлекать ссылки и рекурсивно обходить их
-            // Например, если вы хотите найти ссылки в содержимом страницы:
-            // extractLinksFromPage(url);
-            // И рекурсивно обойти каждую найденную ссылку:
-            // for (String link : links) {
-            //     crawlPage(link);
-            // }
-        } catch (IOException e) {
-            System.err.println("Failed to crawl " + url + ": " + e.getMessage());
-        }
-    }
-
-    public static void main(String[] args) {
-        String startUrl = "https://www.example.com"; // Начальная страница для сканирования
-
-        WebCrawler crawler = new WebCrawler();
-        crawler.crawl(startUrl);
-    }
+    // Геттеры и сеттеры
 }
 
+@Entity
+@Table(name = "page")
+public class Page {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "site_id", nullable = false)
+    private Site site;
+
+    @Column(nullable = false)
+    private String path;
+
+    @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
+    private String content;
+
+    @Column(nullable = false)
+    private int statusCode;
+
+    // Геттеры и сеттеры
+}
+
+public enum Status {
+    INDEXING, INDEXED, FAILED;
+}
