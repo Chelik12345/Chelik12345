@@ -1,87 +1,43 @@
 package com.example.service;
-import java.util.*;
-import java.util.stream.Collectors;
-
+@Service
 public class SearchService {
 
-    private Set<String> stopWords;
+    @Autowired
+    private Lemmatizer lemmatizer;
 
-    public SearchService(Set<String> stopWords) {
-        this.stopWords = stopWords;
+    @Autowired
+    private PageRepository pageRepository;
+
+    public List<SearchResult> search(String query) {
+        List<String> lemmas = lemmatizer.lemmatize(query);
+        lemmas = filterCommonLemmas(lemmas);
+        Collections.sort(lemmas, Comparator.comparingInt(this::getFrequency));
+
+        List<Page> pages = findPagesByLemmas(lemmas);
+
+        List<SearchResult> results = calculateRelevance(pages, lemmas);
+        return results.stream()
+                      .sorted(Comparator.comparingDouble(SearchResult::getRelevance).reversed())
+                      .collect(Collectors.toList());
     }
 
-    public List<String> getUniqueLemmas(String query) {
-        String[] words = query.split("\\s+");
-        return Arrays.stream(words)
-                .map(this::lemmatize)
-                .filter(word -> !stopWords.contains(word))
-                .distinct()
-                .collect(Collectors.toList());
+    private List<String> filterCommonLemmas(List<String> lemmas) {
+        // Фильтрация часто встречающихся лемм
+        // Реализуйте фильтр на основе частотности
     }
 
-    private String lemmatize(String word) {
-        // Пример лемматизации, можно использовать библиотеку NLP
-        return word.toLowerCase();
+    private int getFrequency(String lemma) {
+        // Получение частоты встречаемости леммы
+        // Реализуйте метод на основе данных из индекса
     }
-public List<String> filterFrequentLemmas(List<String> lemmas, Map<String, Integer> lemmaFrequency, int maxFrequencyPercentage) {
-    int totalPages = lemmaFrequency.values().stream().mapToInt(Integer::intValue).sum();
-    int maxFrequency = totalPages * maxFrequencyPercentage / 100;
-    return lemmas.stream()
-            .filter(lemma -> lemmaFrequency.getOrDefault(lemma, 0) < maxFrequency)
-            .sorted(Comparator.comparingInt(lemmaFrequency::get))
-            .collect(Collectors.toList());
-}
-public List<Page> searchPages(List<String> lemmas, Map<String, List<Page>> index) {
-    Set<Page> resultPages = new HashSet<>(index.getOrDefault(lemmas.get(0), Collections.emptyList()));
-    for (String lemma : lemmas) {
-        resultPages.retainAll(index.getOrDefault(lemma, Collections.emptyList()));
-        if (resultPages.isEmpty()) {
-            return Collections.emptyList();
-        }
+
+    private List<Page> findPagesByLemmas(List<String> lemmas) {
+        // Поиск страниц по списку лемм
+        // Реализуйте логику поиска страниц
     }
-    return new ArrayList<>(resultPages);
-}
-public List<RelevantPage> calculateRelevance(List<Page> pages, Map<String, Map<Page, Double>> lemmaRanks) {
-    double maxRelevance = 0.0;
-    List<RelevantPage> relevantPages = new ArrayList<>();
-    for (Page page : pages) {
-        double relevance = 0.0;
-        for (String lemma : lemmaRanks.keySet()) {
-            relevance += lemmaRanks.get(lemma).getOrDefault(page, 0.0);
-        }
-        maxRelevance = Math.max(maxRelevance, relevance);
-        relevantPages.add(new RelevantPage(page, relevance));
+
+    private List<SearchResult> calculateRelevance(List<Page> pages, List<String> lemmas) {
+        // Рассчет релевантности для каждой страницы
+        // Реализуйте метод на основе данных из индекса
     }
-    for (RelevantPage relevantPage : relevantPages) {
-        relevantPage.setRelativeRelevance(relevantPage.getRelevance() / maxRelevance);
-    }
-    relevantPages.sort(Comparator.comparingDouble(RelevantPage::getRelativeRelevance).reversed());
-    return relevantPages;
-}
-public String createSnippet(String content, List<String> queryWords) {
-    int snippetLength = 300;
-    String lowerContent = content.toLowerCase();
-    int start = lowerContent.indexOf(queryWords.get(0));
-    if (start == -1) {
-        start = 0;
-    }
-    int end = Math.min(content.length(), start + snippetLength);
-    String snippet = content.substring(start, end);
-    for (String word : queryWords) {
-        snippet = snippet.replaceAll("(?i)" + word, "<b>" + word + "</b>");
-    }
-    return snippet;
-}
-public List<SearchResult> search(String query, Map<String, List<Page>> index, Map<String, Map<Page, Double>> lemmaRanks, int maxFrequencyPercentage) {
-    List<String> uniqueLemmas = getUniqueLemmas(query);
-    List<String> filteredLemmas = filterFrequentLemmas(uniqueLemmas, lemmaRanks.keySet().stream().collect(Collectors.toMap(lemma -> lemma, lemma -> lemmaRanks.get(lemma).size())), maxFrequencyPercentage);
-    List<Page> foundPages = searchPages(filteredLemmas, index);
-    List<RelevantPage> relevantPages = calculateRelevance(foundPages, lemmaRanks);
-    List<SearchResult> results = new ArrayList<>();
-    for (RelevantPage relevantPage : relevantPages) {
-        String snippet = createSnippet(relevantPage.getPage().getContent(), uniqueLemmas);
-        results.add(new SearchResult(relevantPage.getPage().getUri(), relevantPage.getPage().getTitle(), snippet, relevantPage.getRelativeRelevance()));
-    }
-    return results;
-}
 }
