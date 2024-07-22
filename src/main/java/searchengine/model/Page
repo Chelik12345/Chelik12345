@@ -1,24 +1,24 @@
+@Entity
 public class Page {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String uri;
     private String title;
     private String content;
 
-    // Конструктор, геттеры и сеттеры
+    // Геттеры и сеттеры
 }
 
-public class RelevantPage {
-    private Page page;
-    private double relevance;
-    private double relativeRelevance;
-
-    // Конструктор, геттеры и сеттеры
-}
-
+// SearchResult.java
 public class SearchResult {
+
     private String uri;
     private String title;
     private String snippet;
     private double relevance;
 
-    // Конструктор, геттеры и сеттеры
+    // Геттеры и сеттеры
 }
