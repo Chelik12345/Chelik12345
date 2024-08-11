@@ -3,8 +3,9 @@ package com.example.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "index")
+@Table(name = "`index`")
 public class Index {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,8 +18,8 @@ public class Index {
     @JoinColumn(name = "lemma_id", nullable = false)
     private Lemma lemma;
 
-    @Column(nullable = false)
-    private int rank;
+    @Column(columnDefinition = "FLOAT", nullable = false)
+    private float rank;
 
-    // Getters and setters...
+    // Getters and Setters
 }
