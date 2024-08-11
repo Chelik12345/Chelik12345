@@ -1,3 +1,4 @@
+package searchengine.model;
 @RestController
 @RequestMapping("/api")
 public class IndexingController {

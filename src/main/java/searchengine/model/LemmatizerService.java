@@ -1,3 +1,4 @@
+package searchengine.model;
 package com.example.service;
 
 import org.apache.lucene.morphology.LuceneMorphology;

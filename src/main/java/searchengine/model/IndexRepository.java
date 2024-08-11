@@ -1,6 +1,5 @@
-package com.example.repository;
-
-import com.example.model.Index;
+package searchengine.model;
+import searchengine.model.Index;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
