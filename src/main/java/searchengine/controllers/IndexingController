@@ -1,0 +1,21 @@
+package com.example.controller;
+
+import com.example.service.IndexingService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class IndexingController {
+
+    private final IndexingService indexingService;
+
+    public IndexingController(IndexingService indexingService) {
+        this.indexingService = indexingService;
+    }
+
+    @PostMapping("/startIndexing")
+    public String startIndexing() {
+        indexingService.startIndexing();
+        return "Indexing started!";
+    }
+}
