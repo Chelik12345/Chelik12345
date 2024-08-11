@@ -1,0 +1,42 @@
+package com.example.service;
+
+import com.example.model.Site;
+import com.example.model.SiteStatus;
+import com.example.repository.SiteRepository;
+import com.example.repository.PageRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.concurrent.ForkJoinPool;
+
+@Service
+public class IndexingService {
+
+    private final SiteRepository siteRepository;
+    private final PageRepository pageRepository;
+
+    public IndexingService(SiteRepository siteRepository, PageRepository pageRepository) {
+        this.siteRepository = siteRepository;
+        this.pageRepository = pageRepository;
+    }
+
+    public void startIndexing() {
+        // Логика индексации сайта
+    }
+
+    private void indexSite(Site site) {
+        site.setStatus(SiteStatus.INDEXING.name());
+        site.setStatusTime(LocalDateTime.now());
+        siteRepository.save(site);
+
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+        forkJoinPool.invoke(new SiteCrawler(site, pageRepository, siteRepository));
+
+        site.setStatus(SiteStatus.INDEXED.name());
+        site.setStatusTime(LocalDateTime.now());
+        siteRepository.save(site);
+    }
+}
