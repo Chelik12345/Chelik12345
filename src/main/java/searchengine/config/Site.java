@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class Site {
+public class Site extends searchengine.model.Site {
     private String url;
     private String name;
 }

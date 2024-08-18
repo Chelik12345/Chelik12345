@@ -1,25 +1,36 @@
-package com.example.model;
+package searchengine.model;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "`index`")
+@Getter
+@Setter
 public class Index {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "page_id", nullable = false)
-    private Page page;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lemma_id", nullable = false)
     private Lemma lemma;
 
-    @Column(columnDefinition = "FLOAT", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "page_id", nullable = false)
+    private Page page;
+
+    @Column(nullable = false)
     private float rank;
 
-    // Getters and Setters
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long i;
+
+
+    private double rak;
+    // Другие поля
 }
