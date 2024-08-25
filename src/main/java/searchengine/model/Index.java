@@ -4,16 +4,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "`index`")
 @Getter
 @Setter
-public class Index {
+public class Index implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lemma_id", nullable = false)
@@ -26,8 +27,6 @@ public class Index {
     @Column(nullable = false)
     private float rank;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long i;
 
 
