@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "`index`")
+@Table(name = "indexx")
 @Getter
 @Setter
 public class Index implements Serializable {
@@ -27,6 +27,8 @@ public class Index implements Serializable {
     @Column(nullable = false)
     private float rank;
 
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long i;
 
 

@@ -1,7 +1,9 @@
 package searchengine.model;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import searchengine.repository.IndexxRepository;
 import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SearchService {
 
     @Autowired
@@ -20,8 +23,8 @@ public class SearchService {
     @Autowired
     private PageRepository pageRepository;
 
-    @Autowired
-    private IndexRepository indexRepository;
+//    @Autowired
+    private final IndexxRepository indexxRepository;
 
     public List<SearchResult> search(String query) {
         // 1. Разбить запрос на леммы
@@ -65,7 +68,9 @@ public class SearchService {
     private List<Page> findPagesByLemmas(List<String> lemmas) {
         // Найти страницы по списку лемм
         List<Lemma> foundLemmas = lemmaRepository.findByLemmaIn(lemmas);
-        List<Index> indices = indexRepository.findByLemmaIn(foundLemmas);
+
+//        List<Index> indices = indexRepository.findByLemmaIn(foundLemmas);
+        List<Index> indices = null;
 
         return indices.stream()
                 .map(Index::getPage)
@@ -94,7 +99,8 @@ public class SearchService {
     private double calculatePageRelevance(Long pageId, List<String> lemmas) {
         double relevance = 0;
         for (String lemma : lemmas) {
-            Index index = indexRepository.findByPageIdAndLemma(pageId, lemma);
+//            Index index = indexRepository.findByPageIdAndLemma(pageId, lemma);
+            Index index = null;
             relevance += index != null ? index.getRank() : 0;
         }
         return relevance;

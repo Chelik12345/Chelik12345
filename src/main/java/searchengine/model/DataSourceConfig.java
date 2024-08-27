@@ -12,9 +12,11 @@ public class DataSourceConfig {
     @Bean
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/db");
-        dataSource.setUsername("test");
-        dataSource.setPassword("test");
+//        dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/my_base");
+        dataSource.setJdbcUrl("jdbc:h2:mem:testdb");
+        dataSource.setUsername("sa");
+//        dataSource.setPassword("freefire007");
+        dataSource.setPassword("");
         return dataSource;
     }
 }
