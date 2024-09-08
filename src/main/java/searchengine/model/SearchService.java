@@ -23,7 +23,7 @@ public class SearchService {
     @Autowired
     private PageRepository pageRepository;
 
-//    @Autowired
+    //    @Autowired
     private final IndexxRepository indexxRepository;
 
     public List<SearchResult> search(String query) {

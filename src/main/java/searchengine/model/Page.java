@@ -58,11 +58,11 @@ public class Page {
         this.content = content;
     }
 
-     public Long getId() {
-      return id;
-   }
-   public String getTitle() {
-       return title;
-   }
+    public Long getId() {
+        return id;
+    }
+    public String getTitle() {
+        return title;
+    }
 
 }

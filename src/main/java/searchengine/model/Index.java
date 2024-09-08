@@ -27,7 +27,7 @@ public class Index implements Serializable {
     @Column(nullable = false)
     private float rank;
 
-//    @Id
+    //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long i;
 
