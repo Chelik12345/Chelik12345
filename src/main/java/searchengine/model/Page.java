@@ -5,6 +5,21 @@ import javax.persistence.*;
 @Entity
 @Table(name = "page")
 public class Page {
+    private String url;
+    private String title;
+    private String content;
+
+    // Конструктор
+    public Page(String url, String title, String content) {
+        this.url = url;
+        this.title = title;
+        this.content = content;
+    }
+
+    // Геттеры
+    public String getUrl() {
+        return url;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,13 +34,6 @@ public class Page {
 
     @Column(columnDefinition = "INT")
     private int code;
-
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String content;
-    // Getters and setters
-    public String title;
-
-
     public Site getSite() {
         return site;
     }

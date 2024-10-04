@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IndexxRepository extends JpaRepository<Index, Long> {
     // Изменяем название метода на корректное
-    List<Page> findPagesByLemma_LemmaIn(List<String> lemmas);
+
 }
 
 

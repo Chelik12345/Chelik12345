@@ -13,10 +13,10 @@ public class DataSourceConfig {
     public DataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
 //        dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/my_base");
-        dataSource.setJdbcUrl("jdbc:h2:mem:testdb");
-        dataSource.setUsername("sa");
+        dataSource.setJdbcUrl("jdbc:h2:mem:my_base");
+        dataSource.setUsername("root");
 //        dataSource.setPassword("freefire007");
-        dataSource.setPassword("");
+        dataSource.setPassword("freefire007");
         return dataSource;
     }
 }
